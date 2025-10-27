@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <title>고객 조회</title>
+</head>
+<body style="margin: 0; padding: 0;">
+<div style="width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #eeeeee;">
+    <div style="width: 60%; height: 80%;
+    text-align: center; padding: 20px;
+    border-radius: 10px; background-color: white;">
+
+        <!--search-->
+        <div style="height:50px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+            성명
+            <form id="searchForm" action="/api/customers">
+                <input name="keyword" type="text" style="padding:10px 20px;">
+                <button type="submit"
+                        style="padding:10px 20px;background:#dfdfdf;border-radius:10px;border:none;font-size:1rem;">
+                    조회
+                </button>
+            </form>
+
+            <button style="padding: 10px 20px; background-color:#dfdfdf; border-radius:10px; border: none; font-size:1rem;">
+                전체보기
+            </button>
+            <button style="padding: 10px 20px; background-color:#dfdfdf; border-radius:10px; border: none; font-size:1rem;">
+                수정
+            </button>
+            <button style="padding: 10px 20px; background-color:#dfdfdf; border-radius:10px; border: none; font-size:1rem;">
+                삭제
+            </button>
+            <a href="/management.html"
+               style="display:inline-block; padding: 10px 20px; background-color:#dfdfdf; border-radius:10px; text-decoration:none; color:#111;">
+                닫기
+            </a>
+        </div>
+
+        <!--list-->
+        <div id="customer_table">
+        </div>
+
+        <script>
+            const tableContainer = document.getElementById('customer_table');
+
+            const tableHeader = ['code', 'name', 'birth', 'tel', 'address', 'company'];
+            const tableData = await fetch({
+                method: 'GET',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            });
+
+            console.log(tableData);
+            let tableHTML = '<table>';
+
+            tableHTML += '<thead><tr>';
+            tableHeader.forEach(header => {
+                tableHTML += `<th>${header}</th>`;
+            });
+            tableHTML += '</tr></thead>';
+
+            tableHTML += '<tbody>';
+            tableData.forEach(item => {
+                tableHTML += '<tr>';
+                tableHTML += `<td>${item.code}</td>`;
+                tableHTML += `<td>${item.name}</td>`;
+                tableHTML += `<td>${item.birth}</td>`;
+                tableHTML += `<td>${item.tel}</td>`;
+                tableHTML += `<td>${item.address}</td>`;
+                tableHTML += `<td>${item.company}</td>`;
+                tableHTML += '</tr>';
+            });
+            tableHTML += '</tbody>';
+            tableHTML += '</table>';
+
+            tableContainer.innerHTML = tableHTML;
+        </script>
+    </div>
+</div>
+</body>
+</html>
