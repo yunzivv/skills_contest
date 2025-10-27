@@ -37,7 +37,19 @@ public class APIService {
 
     public List<Customer> getCustomers(String keyword) {
 
-        System.out.println(keyword);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return jdbc.query("SELECT * FROM customer",
+                    (rs,i)-> new Customer(
+                            rs.getString("code"),
+                            rs.getString("name"),
+                            rs.getDate("birth"),
+                            rs.getString("tel"),
+                            rs.getString("address"),
+                            rs.getString("company")
+                    )
+            );
+        }
+
         String sql = "SELECT * FROM customer WHERE `name` LIKE CONCAT('%', ?, '%')";
         List<Customer> customers = jdbc.query(sql,
                 new RowMapper<Customer>() {

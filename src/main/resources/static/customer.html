@@ -14,65 +14,83 @@
         <div style="height:50px; display: flex; justify-content: center; align-items: center; gap: 10px;">
             성명
             <form id="searchForm" action="/api/customers">
-                <input name="keyword" type="text" style="padding:10px 20px;">
+                <input name="keyword" type="text" style="padding:8px 20px;">
                 <button type="submit"
-                        style="padding:10px 20px;background:#dfdfdf;border-radius:10px;border:none;font-size:1rem;">
+                        style="padding:8px 20px;background:#dfdfdf;border-radius:10px;border:none;font-size:1rem;">
                     조회
                 </button>
             </form>
 
-            <button style="padding: 10px 20px; background-color:#dfdfdf; border-radius:10px; border: none; font-size:1rem;">
+            <button id="all"
+                    style="padding: 8px 20px; background-color:#dfdfdf; border-radius:10px; border: none; font-size:1rem;">
                 전체보기
             </button>
-            <button style="padding: 10px 20px; background-color:#dfdfdf; border-radius:10px; border: none; font-size:1rem;">
+            <button style="padding: 8px 20px; background-color:#dfdfdf; border-radius:10px; border: none; font-size:1rem;">
                 수정
             </button>
-            <button style="padding: 10px 20px; background-color:#dfdfdf; border-radius:10px; border: none; font-size:1rem;">
+            <button style="padding: 8px 20px; background-color:#dfdfdf; border-radius:10px; border: none; font-size:1rem;">
                 삭제
             </button>
             <a href="/management.html"
-               style="display:inline-block; padding: 10px 20px; background-color:#dfdfdf; border-radius:10px; text-decoration:none; color:#111;">
+               style="display:inline-block; padding: 8px 20px; background-color:#dfdfdf; border-radius:10px; text-decoration:none; color:#111;">
                 닫기
             </a>
         </div>
 
         <!--list-->
-        <div id="customer_table">
+        <div id="customer_table" style="overflow-y: auto; height: calc(80vh - 50px);">
         </div>
 
         <script>
+
             const tableContainer = document.getElementById('customer_table');
+            const searchForm = document.getElementById('searchForm');
+            const btnAll = document.getElementById('all');
 
-            const tableHeader = ['code', 'name', 'birth', 'tel', 'address', 'company'];
-            const tableData = await fetch({
-                method: 'GET',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            async function loadCustomers(keyword) {
+                const url = keyword && keyword.trim()
+                    ? `${searchForm.action}?keyword=${encodeURIComponent(keyword.trim())}`
+                    : searchForm.action;
+
+                const res = await fetch(url, {method: 'GET'});
+                const rows = await res.json();
+                renderTable(rows);
+            }
+
+            function renderTable(rows) {
+                if (!Array.isArray(rows) || rows.length === 0) {
+                    tableContainer.innerHTML = '<div style="color:#666;padding:10px;">조회 결과가 없습니다.</div>';
+                    return;
+                }
+                let html = '<table style="width:100%; border-collapse:collapse;">';
+                html += '<thead style="position: sticky;"><tr>';
+                ['code', 'name', 'birth', 'tel', 'address', 'company'].forEach(h => {
+                    html += `<th style="border-bottom:1px solid #ddd; padding:8px; text-align:center;">${h}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+
+                for (const r of rows) {
+                    html += '<tr>';
+                    html += `<td style="border-bottom:1px solid #f0f0f0; padding:8px 0;">${r.code}</td>`;
+                    html += `<td style="border-bottom:1px solid #f0f0f0; padding:8px 0;">${r.name}</td>`;
+                    html += `<td style="border-bottom:1px solid #f0f0f0; padding:8px 0;">${(r.birth).toString().substring(0, 10)}</td>`;
+                    html += `<td style="border-bottom:1px solid #f0f0f0; padding:8px 0;">${r.tel ?? ''}</td>`;
+                    html += `<td style="border-bottom:1px solid #f0f0f0; padding:8px 0;">${r.address ?? ''}</td>`;
+                    html += `<td style="border-bottom:1px solid #f0f0f0; padding:8px 0;">${r.company ?? ''}</td>`;
+                    html += '</tr>';
+                }
+                html += '</tbody></table>';
+                tableContainer.innerHTML = html;
+            }
+
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const kw = new FormData(searchForm).get('keyword') || '';
+                loadCustomers(kw);
             });
 
-            console.log(tableData);
-            let tableHTML = '<table>';
-
-            tableHTML += '<thead><tr>';
-            tableHeader.forEach(header => {
-                tableHTML += `<th>${header}</th>`;
-            });
-            tableHTML += '</tr></thead>';
-
-            tableHTML += '<tbody>';
-            tableData.forEach(item => {
-                tableHTML += '<tr>';
-                tableHTML += `<td>${item.code}</td>`;
-                tableHTML += `<td>${item.name}</td>`;
-                tableHTML += `<td>${item.birth}</td>`;
-                tableHTML += `<td>${item.tel}</td>`;
-                tableHTML += `<td>${item.address}</td>`;
-                tableHTML += `<td>${item.company}</td>`;
-                tableHTML += '</tr>';
-            });
-            tableHTML += '</tbody>';
-            tableHTML += '</table>';
-
-            tableContainer.innerHTML = tableHTML;
+            btnAll.addEventListener('click', () => loadCustomers());
+            loadCustomers();
         </script>
     </div>
 </div>
