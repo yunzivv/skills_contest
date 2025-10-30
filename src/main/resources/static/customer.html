@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>고객 조회</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body style="margin: 0; padding: 0;">
 <div style="width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #eeeeee;">
@@ -38,12 +39,19 @@
         </div>
 
         <!--list-->
-        <div id="customer_table" style="overflow-y: auto; height: calc(80vh - 50px);">
+        <div id="customer_container" style="overflow-y: auto; height: calc(80vh - 50px);">
         </div>
 
+        <style>
+            .selected {
+                background-color: #c8dfff;
+            }
+        </style>
+
+        <!--조회-->
         <script>
 
-            const tableContainer = document.getElementById('customer_table');
+            const tableContainer = document.getElementById('customer_container');
             const searchForm = document.getElementById('searchForm');
             const btnAll = document.getElementById('all');
 
@@ -62,7 +70,7 @@
                     tableContainer.innerHTML = '<div style="color:#666;padding:10px;">조회 결과가 없습니다.</div>';
                     return;
                 }
-                let html = '<table style="width:100%; border-collapse:collapse;">';
+                let html = '<table id="customer_table" style="width:100%; border-collapse:collapse;">';
                 html += '<thead style="position: sticky;"><tr>';
                 ['code', 'name', 'birth', 'tel', 'address', 'company'].forEach(h => {
                     html += `<th style="border-bottom:1px solid #ddd; padding:8px; text-align:center;">${h}</th>`;
@@ -70,7 +78,7 @@
                 html += '</tr></thead><tbody>';
 
                 for (const r of rows) {
-                    html += '<tr>';
+                    html += '<tr id="" style="cursor: pointer">';
                     html += `<td style="border-bottom:1px solid #f0f0f0; padding:8px 0;">${r.code}</td>`;
                     html += `<td style="border-bottom:1px solid #f0f0f0; padding:8px 0;">${r.name}</td>`;
                     html += `<td style="border-bottom:1px solid #f0f0f0; padding:8px 0;">${(r.birth).toString().substring(0, 10)}</td>`;
@@ -91,6 +99,15 @@
 
             btnAll.addEventListener('click', () => loadCustomers());
             loadCustomers();
+        </script>
+
+        <!--수정-->
+        <script>
+            $(document).on("click", "#customer_table tr", function(){
+                $(this).siblings().removeClass('selected');
+                $(this).addClass("selected");
+            });
+
         </script>
     </div>
 </div>
